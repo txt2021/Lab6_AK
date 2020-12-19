@@ -82,72 +82,124 @@ hello.c
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+ 
 #include <linux/init.h>
+
 #include <linux/module.h>
+
 #include <linux/moduleparam.h>
+
 #include <linux/printk.h>
+
 #include <linux/types.h>
+
 #include <linux/ktime.h>
+
 #include <linux/slab.h>
+
 struct head_list {
+
   struct head_list *next;
+  
   ktime_t start_time;
+  
 };
 
 MODULE_AUTHOR("Chuiasova Tetiana IV-82");
+
 MODULE_DESCRIPTION("Hello world (Linux module for lab6)");
+
 MODULE_LICENSE("Dual BSD/GPL");
+
 static struct head_list *head;
+
 static uint repeat = 1;
+
 module_param(repeat, uint, 0444);
+
 MODULE_PARM_DESC(repeat, "repeat amount");
+
 static int __init hello_init(void)
+
 {
+
   uint i = 0;
+  
   struct head_list *this_var, *next_var;
+  
   if (!repeat) {
+  
     pr_info("Repetition parameter = 0");
+    
     pr_info("");
+    
     return 0;
+    
   }  if (repeat >= 5 && repeat <= 10) {
+  
     pr_warn("Repetition parameter is between 5 and 10");
+    
   } else {    if (repeat > 10) {
+  
       pr_err("Repetition parameter > 10");
+      
       pr_info("");
+      
       return -EINVAL;    }
+      
   }
   head = kmalloc(sizeof(struct head_list *), GFP_KERNEL);
+  
   this_var = head;
+  
   for (i = 0; i < repeat; i++) {
+  
     this_var->next = kmalloc(sizeof(struct head_list), GFP_KERNEL);
+    
     this_var->start_time = ktime_get();
+    
+    
     pr_info("Hello, world!\n");
+    
     next_var = this_var;
+    
     this_var = this_var->next;
+    
   }
-  pr_info("Repeat: %d\n", repeat); 
+  pr_info("Repeat: %d\n", repeat);
+  
   kfree(next_var->next);
+  
   next_var->next = NULL;
+  
   return 0;
 }
+
 static void __exit hello_exit(void)
+
 {
   struct head_list *tmp_var;
+  
   while (head != NULL && repeat != 0) {
+  
     tmp_var = head;
+    
     pr_info("Time of printing: %lld", tmp_var->start_time);
+    
     head = tmp_var->next;
+    
     kfree(tmp_var);
+    
   }
+  
   pr_info("");
+  
 }
 
 module_init(hello_init);
+
 module_exit(hello_exit);
 
-MakeFile
-
- 
 
 Посилання на репозиторій:
 
